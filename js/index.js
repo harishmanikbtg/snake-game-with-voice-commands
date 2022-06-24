@@ -1,123 +1,141 @@
+
+
 // Game Constants & Variables
-let inputDir = {x: 0, y: 0}; 
-const foodSound = new Audio('music/food.mp3');
-const gameOverSound = new Audio('music/gameover.mp3');
+let inputDir = { x: 0, y: 0 };
+// const foodSound = new Audio('music/food.mp3');
+// const gameOverSound = new Audio('music/gameover.mp3');
 const moveSound = new Audio('music/move.mp3');
-const musicSound = new Audio('music/music.mp3');
-let speed = 19;
+// const musicSound = new Audio('music/music.mp3');
+let speed = 1;
 let score = 0;
 let lastPaintTime = 0;
 let snakeArr = [
-    {x: 13, y: 15}
+    { x: 7, y: 8 }
 ];
 
-food = {x: 6, y: 7};
+food = { x: 6, y: 7 };
 
-// Game Functions
-function main(ctime) {
-    window.requestAnimationFrame(main);
-    // console.log(ctime)
-    if((ctime - lastPaintTime)/1000 < 1/speed){
-        return;
-    }
-    lastPaintTime = ctime;
-    gameEngine();
+
+
+
+const speechBtn = document.getElementById("speechBtn");
+
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+if (SpeechRecognition) {
+    console.log("Positive");
 }
+const recognition = new SpeechRecognition();
 
-function isCollide(snake) {
-    // If you bump into yourself 
-    for (let i = 1; i < snakeArr.length; i++) {
-        if(snake[i].x === snake[0].x && snake[i].y === snake[0].y){
-            return true;
-        }
+speechBtn.addEventListener("click", speechBtnClick);
+function speechBtnClick() {
+    if (speechBtn.innerHTML == "Start") {
+        recognition.start();
+    } else {
+        recognition.stop();
     }
-    // If you bump into the wall
-    if(snake[0].x >= 18 || snake[0].x <=0 || snake[0].y >= 18 || snake[0].y <=0){
-        return true;
-    }
-        
-    return false;
-}
-
-function gameEngine(){
-    // Part 1: Updating the snake array & Food
-    if(isCollide(snakeArr)){
-        gameOverSound.play();
-        musicSound.pause();
-        inputDir =  {x: 0, y: 0}; 
-        alert("Game Over. Press any key to play again!");
-        snakeArr = [{x: 13, y: 15}];
-        musicSound.play();
-        score = 0; 
-    }
-
-    // If you have eaten the food, increment the score and regenerate the food
-    if(snakeArr[0].y === food.y && snakeArr[0].x ===food.x){
-        foodSound.play();
-        score += 1;
-        if(score>hiscoreval){
-            hiscoreval = score;
-            localStorage.setItem("hiscore", JSON.stringify(hiscoreval));
-            hiscoreBox.innerHTML = "HiScore: " + hiscoreval;
-        }
-        scoreBox.innerHTML = "Score: " + score;
-        snakeArr.unshift({x: snakeArr[0].x + inputDir.x, y: snakeArr[0].y + inputDir.y});
-        let a = 2;
-        let b = 16;
-        food = {x: Math.round(a + (b-a)* Math.random()), y: Math.round(a + (b-a)* Math.random())}
-    }
-
-    // Moving the snake
-    for (let i = snakeArr.length - 2; i>=0; i--) { 
-        snakeArr[i+1] = {...snakeArr[i]};
-    }
-
-    snakeArr[0].x += inputDir.x;
-    snakeArr[0].y += inputDir.y;
-
-    // Part 2: Display the snake and Food
-    // Display the snake
-    board.innerHTML = "";
-    snakeArr.forEach((e, index)=>{
-        snakeElement = document.createElement('div');
-        snakeElement.style.gridRowStart = e.y;
-        snakeElement.style.gridColumnStart = e.x;
-
-        if(index === 0){
-            snakeElement.classList.add('head');
-        }
-        else{
-            snakeElement.classList.add('snake');
-        }
-        board.appendChild(snakeElement);
-    });
-    // Display the food
-    foodElement = document.createElement('div');
-    foodElement.style.gridRowStart = food.y;
-    foodElement.style.gridColumnStart = food.x;
-    foodElement.classList.add('food')
-    board.appendChild(foodElement);
-
-
 }
 
 
-// Main logic starts here
-musicSound.play();
-let hiscore = localStorage.getItem("hiscore");
-if(hiscore === null){
-    hiscoreval = 0;
-    localStorage.setItem("hiscore", JSON.stringify(hiscoreval))
+recognition.continuous = true;
+recognition.interimResults = false;
+
+recognition.addEventListener("start", startSpeechRecognition);
+
+function startSpeechRecognition() {
+    console.log("Listening");
+    score = 0;
+    speechBtn.innerHTML = "Stop";
 }
-else{
-    hiscoreval = JSON.parse(hiscore);
-    hiscoreBox.innerHTML = "HiScore: " + hiscore;
+
+recognition.addEventListener("end", endSpeechRecogintion);
+
+function endSpeechRecogintion() {
+    console.log("Disconnected");
+    speechBtn.innerHTML = "Start";
+}
+
+function delaySwitch() {
+    let sum = 0;
+    for (let i = 0; i < 1000; i++) {
+        sum = sum + i;
+    }
+    console.log(sum);
+}
+
+
+function left() {
+    inputDir.x = -1;
+    inputDir.y = 0;
+}
+
+function right() {
+    inputDir.x = 1;
+    inputDir.y = 0;
+}
+
+function up() {
+    inputDir.x = 0;
+    inputDir.y = -1;
+}
+
+function down() {
+    inputDir.x = 0;
+    inputDir.y = 1;
 }
 
 window.requestAnimationFrame(main);
-window.addEventListener('keydown', e =>{
-    inputDir = {x: 0, y: 1} // Start the game
-    moveSound.play();
+
+recognition.addEventListener("result", handleResults);
+function handleResults(Event) {
+    // console.log(Event);
+    const transcriptSpeech = Event.results[Event.results.length - 1][0].transcript.trim();
+    console.log(transcriptSpeech);
+
+    inputDir = { x: 0, y: 1 } // Start the game
+    switch (transcriptSpeech) {
+        case "up":
+        case "ab":
+        case "it up":
+        case "up up":
+        case "aap":
+            up();
+            break;
+
+        case "down":
+        case "up down":
+            down();
+            break;
+
+        case "laptop":
+        case "leftup":
+            left();
+            setTimeout(up(),2);
+            // up();
+            break;
+
+        case "left":
+            left();
+            break;
+
+        case "right":
+            right();
+            break;
+        default:
+            break;
+    }
+}
+
+// } else {
+//     console.log("Negative");
+// }
+
+
+
+window.requestAnimationFrame(main);
+window.addEventListener('keydown', e => {
+    inputDir = { x: 0, y: 1 } // Start the game
+    // moveSound.play()-
     switch (e.key) {
         case "ArrowUp":
             console.log("ArrowUp");
@@ -147,3 +165,112 @@ window.addEventListener('keydown', e =>{
     }
 
 });
+
+
+
+
+
+// Game Functions
+function main(ctime) {
+    window.requestAnimationFrame(main);
+    // console.log(ctime)
+    if ((ctime - lastPaintTime) / 1000 < 1 / speed) {
+        return;
+    }
+    lastPaintTime = ctime;
+    gameEngine();
+}
+
+function isCollide(snake) {
+    // If you bump into yourself 
+    for (let i = 1; i < snakeArr.length; i++) {
+        if (snake[i].x === snake[0].x && snake[i].y === snake[0].y) {
+            return true;
+        }
+    }
+    // If you bump into the wall
+    if (snake[0].x >= 18 || snake[0].x <= 0 || snake[0].y >= 18 || snake[0].y <= 0) {
+        return true;
+    }
+
+    return false;
+}
+
+function gameEngine() {
+    // Part 1: Updating the snake array & Food
+    if (isCollide(snakeArr)) {
+        // gameOverSound.play();
+        // musicSound.pause();
+        inputDir = { x: 0, y: 0 };
+        alert("Game Over. Press OK to play again!");
+        recognition.stop();
+        snakeArr = [{ x: 8, y: 8 }];
+        // musicSound.play();
+        score = 0;
+        scoreBox.innerHTML = "Score: " + score;
+    }
+
+
+    // If you have eaten the food, increment the score and regenerate the food
+    if (snakeArr[0].y === food.y && snakeArr[0].x === food.x) {
+        // foodSound.play();
+        score += 1;
+        if (score > hiscoreval) {
+            hiscoreval = score;
+            localStorage.setItem("hiscore", JSON.stringify(hiscoreval));
+            hiscoreBox.innerHTML = "HiScore: " + hiscoreval;
+        }
+        scoreBox.innerHTML = "Score: " + score;
+        snakeArr.unshift({ x: snakeArr[0].x + inputDir.x, y: snakeArr[0].y + inputDir.y });
+        let a = 2;
+        let b = 16;
+        food = { x: Math.round(a + (b - a) * Math.random()), y: Math.round(a + (b - a) * Math.random()) }
+    }
+
+    // Moving the snake
+    for (let i = snakeArr.length - 2; i >= 0; i--) {
+        snakeArr[i + 1] = { ...snakeArr[i] };
+    }
+
+    snakeArr[0].x += inputDir.x;
+    snakeArr[0].y += inputDir.y;
+
+    // Part 2: Display the snake and Food
+    // Display the snake
+    board.innerHTML = "";
+    snakeArr.forEach((e, index) => {
+        snakeElement = document.createElement('div');
+        snakeElement.style.gridRowStart = e.y;
+        snakeElement.style.gridColumnStart = e.x;
+
+        if (index === 0) {
+            snakeElement.classList.add('head');
+        }
+        else {
+            snakeElement.classList.add('snake');
+        }
+        board.appendChild(snakeElement);
+    });
+    // Display the food
+    foodElement = document.createElement('div');
+    foodElement.style.gridRowStart = food.y;
+    foodElement.style.gridColumnStart = food.x;
+    foodElement.classList.add('food')
+    board.appendChild(foodElement);
+
+
+}
+
+
+// Main logic starts here
+// musicSound.play();
+let hiscore = localStorage.getItem("hiscore");
+if (hiscore === null) {
+    hiscoreval = 0;
+    localStorage.setItem("hiscore", JSON.stringify(hiscoreval))
+}
+else {
+    hiscoreval = JSON.parse(hiscore);
+    hiscoreBox.innerHTML = "HiScore: " + hiscore;
+}
+
