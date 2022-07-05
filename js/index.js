@@ -55,19 +55,26 @@ function endSpeechRecogintion() {
     speechBtn.innerHTML = "Start";
 }
 
-function delaySwitch() {
-    let sum = 0;
-    for (let i = 0; i < 1000; i++) {
-        sum = sum + i;
-    }
-    console.log(sum);
-}
+// function delaySwitch() {
+//     let sum = 0;
+//     for (let i = 0; i < 1000; i++) {
+//         sum = sum + i;
+//     }
+//     console.log(sum);
+// }
 
 
 function left() {
     inputDir.x = -1;
     inputDir.y = 0;
 }
+// // function leftup() {
+// //     left();
+// //     setTimeout(
+// //         up()
+// //         , 2500);
+
+// // }
 
 function right() {
     inputDir.x = 1;
@@ -107,12 +114,12 @@ function handleResults(Event) {
             down();
             break;
 
-        case "laptop":
-        case "leftup":
-            left();
-            setTimeout(up(),2);
-            // up();
-            break;
+        // case "laptop":
+        // case "leftup":
+        // case "left up":
+        //     leftup();
+
+        //     break;
 
         case "left":
             left();
